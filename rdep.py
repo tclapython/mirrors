@@ -10,11 +10,13 @@ def download_package(package_name):
 	print(f"Running command: {download_command}")
 	result = subprocess.run(download_command, shell=True, stderr=subprocess.PIPE, text=True)
 	
+	print(result)
 	# error check
 	# ([\w.\-+]+) matches a single word where -, +, and . are not considered word boundaries as they normally would be
-	errors = re.findall(r"E: Can't select candidate version from package ([\w.\-+]+) as it has no candidate", result.stderr)
+	errors = [error for error in re.findall(r"E: Can't select candidate version from package ([\w.\-+]+) as it has no candidate|E: Can't find a source to download version '[^']+' of '([\w.\-+]+):", result.stderr) if error]
+	errors = [item for sublist in errors for item in sublist if item] # wow 
 	if not errors:
-		printf("Download successful!")
+		print("Download successful!")
 		return
 		
 	# exclude errored pkgs
